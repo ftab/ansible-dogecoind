@@ -65,16 +65,16 @@
     path: "/home/{{ dogecoin_user }}/.dogecoin"
     state: directory
     mode: 0700
-    owner: {{ dogecoin_user }}
-    group: {{ dogecoin_user }}
+    owner: "{{ dogecoin_user }}"
+    group: "{{ dogecoin_user }}"
 
 - name: Setup dogecoin.conf
   copy:
     src: ./dogecoin.conf
-    dest: /home/{{ dogecoin_user }}/.dogecoin/dogecoin.conf
+    dest: "/home/{{ dogecoin_user }}/.dogecoin/dogecoin.conf"
     mode: 0600
-    owner: {{ dogecoin_user }}
-    group: {{ dogecoin_user }}
+    owner: "{{ dogecoin_user }}"
+    group: "{{ dogecoin_user }}"
 
 - name: install dogecoin systemd unit file
   when: ansible_service_mgr == "systemd" and install_dogecoin_service == true
