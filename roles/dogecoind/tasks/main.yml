@@ -1,0 +1,85 @@
+---
+- name: Create Dogecoin user
+  when: create_dogecoin_user == true
+  user:
+    name: "{{ dogecoin_user }}"
+    comment: Dogecoin
+    uid: 69420
+
+- name: Check whether dogecoind is installed and on system path 
+  command: 'which dogecoind'
+  register: dogecoind_installed
+  ignore_errors: yes
+
+- name: check if Dogecoin downloaded files exists
+  when: dogecoind_installed.rc != 0
+  stat: 
+    path: /usr/local/dogecoin-{{ dogecoin_version }}/bin/dogecoind
+  register: dogecoin_download
+
+- name: Download Dogecoin (x86)
+  when: dogecoind_installed.rc != 0 and dogecoin_download.stat.exists == false and ansible_architecture == "i686"
+  unarchive:
+    src: "https://github.com/dogecoin/dogecoin/releases/download/v{{ dogecoin_version }}/dogecoin-{{ dogecoin_version }}-i686-pc-linux-gnu.tar.gz"
+    dest: /usr/local
+    remote_src: yes
+  register: dogecoin_tar
+
+- name: Download Dogecoin (x64)
+  when: dogecoind_installed.rc != 0 and dogecoin_download.stat.exists == false and ansible_architecture == "x86_64"
+  unarchive:
+    src: "https://github.com/dogecoin/dogecoin/releases/download/v{{ dogecoin_version }}/dogecoin-{{ dogecoin_version }}-x86_64-linux-gnu.tar.gz"
+    dest: /usr/local
+    remote_src: yes
+  register: dogecoin_tar
+
+- name: Download Dogecoin (ARMv7 or earlier)
+  when: dogecoind_installed.rc != 0 and dogecoin_download.stat.exists == false and "armv" in ansible_architecture
+  unarchive:
+    src: "https://github.com/dogecoin/dogecoin/releases/download/v{{ dogecoin_version }}/dogecoin-{{ dogecoin_version }}-arm-linux-gnueabihf.tar.gz"
+    dest: /usr/local
+    remote_src: yes
+  register: dogecoin_tar
+
+- name: Download Dogecoin (ARMv8)
+  when: dogecoind_installed.rc != 0 and dogecoin_download.stat.exists == false and ansible_architecture == "aarch64"
+  unarchive:
+    src: "https://github.com/dogecoin/dogecoin/releases/download/v{{ dogecoin_version }}/dogecoin-{{ dogecoin_version }}-arm-linux-gnueabihf.tar.gz"
+    dest: /usr/local
+    remote_src: yes
+  register: dogecoin_tar
+
+- name: Move Dogecoin into place
+  when: dogecoind_installed.rc != 0 and (dogecoin_download.stat.exists == true or dogecoin_tar.extract_results.rc == 0)
+  copy:
+    remote_src: yes
+    # trailing slash to copy the contents to the destination, not the directory itself
+    src: "/usr/local/dogecoin-{{ dogecoin_version }}/"
+    dest: /usr/local
+
+- name: Check that dogecoind can be run now
+  command: 'which dogecoind'
+
+- name: "Setup /home/{{ dogecoin_user }}/.dogecoin"
+  file:
+    path: "/home/{{ dogecoin_user }}/.dogecoin"
+    state: directory
+    mode: 0700
+    owner: {{ dogecoin_user }}
+    group: {{ dogecoin_user }}
+
+- name: Setup dogecoin.conf
+  copy:
+    src: ./dogecoin.conf
+    dest: /home/{{ dogecoin_user }}/.dogecoin/dogecoin.conf
+    mode: 0600
+    owner: {{ dogecoin_user }}
+    group: {{ dogecoin_user }}
+
+- name: install dogecoin systemd unit file
+  when: ansible_service_mgr == "systemd" and install_dogecoin_service == true
+  template: src=dogecoin.service.j2 dest=/etc/systemd/system/dogecoin.service
+
+- name: start
+  when: ansible_service_mgr == "systemd" and install_dogecoin_service == true
+  systemd: state=started name=dogecoin daemon_reload=yes

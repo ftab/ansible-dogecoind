@@ -1,0 +1,18 @@
+[Unit]
+Description=Dogecoin's distributed currency daemon
+After=network.target
+StartLimitIntervalSec=120
+StartLimitBurst=20
+
+[Service]
+User={{ dogecoin_user }}
+Group={{ dogecoin_user }}
+Type=forking
+ExecStart=/usr/local/bin/dogecoind -daemon -conf=/home/{{ dogecoin_user }}/.dogecoin/dogecoin.conf -datadir=/home/{{ dogecoin_user }}/.dogecoin
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=20s
+
+[Install]
+WantedBy=multi-user.target

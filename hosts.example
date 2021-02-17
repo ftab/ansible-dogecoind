@@ -1,2 +1,8 @@
-[webservers]
-101.101.101.101
+# More information: https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
+
+[dogecoin]
+192.168.2.7 ansible_user=root
+#192.168.2.10 ansible_user=root
+#192.168.2.19 ansible_user=root
+
+# Use as many machines as you have. Probably best not to use multiple machines on the same network, though.

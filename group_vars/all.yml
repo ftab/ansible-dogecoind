@@ -1,0 +1,10 @@
+dogecoin_version: 1.14.2
+
+# This is the user that will run dogecoind and which will have the .dogecoin folder created in their home directory
+dogecoin_user: dogecoin
+
+# If the user does not exist on the target, it will be created
+create_dogecoin_user: yes
+
+# Install a service to systemd to ensure dogecoind runs on startup
+install_dogecoin_service: yes

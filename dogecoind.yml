@@ -1,0 +1,5 @@
+---
+- name: Ansible playbook to install and set up dogecoind
+  hosts: dogecoin
+  roles:
+    - dogecoind
