@@ -18,7 +18,7 @@
   register: dogecoin_download
 
 - name: Download Dogecoin (x86)
-  when: dogecoind_installed.rc != 0 and dogecoin_download.stat.exists == false and ansible_architecture == "i686"
+  when: dogecoind_installed.rc != 0 and dogecoin_download.stat.exists == false and (ansible_architecture == "i686" or ansible_architecture == "i386")
   unarchive:
     src: "https://github.com/dogecoin/dogecoin/releases/download/v{{ dogecoin_version }}/dogecoin-{{ dogecoin_version }}-i686-pc-linux-gnu.tar.gz"
     dest: /usr/local
