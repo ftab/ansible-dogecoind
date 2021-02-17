@@ -44,13 +44,13 @@
 - name: Download Dogecoin (ARMv8)
   when: dogecoind_installed.rc != 0 and dogecoin_download.stat.exists == false and ansible_architecture == "aarch64"
   unarchive:
-    src: "https://github.com/dogecoin/dogecoin/releases/download/v{{ dogecoin_version }}/dogecoin-{{ dogecoin_version }}-arm-linux-gnueabihf.tar.gz"
+    src: "https://github.com/dogecoin/dogecoin/releases/download/v{{ dogecoin_version }}/dogecoin-{{ dogecoin_version }}-aarch64-linux-gnu.tar.gz"
     dest: /usr/local
     remote_src: yes
   register: dogecoin_tar
 
 - name: Move Dogecoin into place
-  when: dogecoind_installed.rc != 0 and (dogecoin_download.stat.exists == true or dogecoin_tar.extract_results.rc == 0)
+  when: dogecoind_installed.rc != 0 and (dogecoin_download.stat.exists == true or dogecoin_tar)
   copy:
     remote_src: yes
     # trailing slash to copy the contents to the destination, not the directory itself
